@@ -6,6 +6,7 @@ import DynamikStyle from './components/DynamikStyle'
 import FragMant from './components/FragMant'
 import { PropsType } from './components/PropsType'
 import UseFef from './components/UseFef'
+import UseReducer from './components/UseReducer'
 
 function App() {
   const [user ,setUsers]=useState('animes')
@@ -19,6 +20,8 @@ function App() {
         <PropsType user={user}  data={{name:'kamoal',old:40}}  />
 
         <UseFef />
+
+        <UseReducer />
       </div>
     </>
   )
