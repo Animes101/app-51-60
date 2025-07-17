@@ -12,6 +12,15 @@ const booksDami = [
 
 
   const reducer=(state, action)=>{
+
+    if(action.type === 'ADD'){
+      const allBook=[...state.books, action.payload];
+      return {
+        ...state,
+        books:allBook,
+        displayBooks:allBook
+      }
+    }
     return state;
 
 
@@ -34,39 +43,41 @@ const UseReducer = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const addBook = {
-      id: uuidv4(),
-      title,
-      author,
-      year: parseInt(year),
-      price: parseInt(price)
-    };
+    // const addBook = {
+    //   id: uuidv4(),
+    //   title,
+    //   author,
+    //   year: parseInt(year),
+    //   price: parseInt(price)
+    // };
 
-    const newBooks = [...books, addBook];
-    setBooks(newBooks);
-    setDisplayBooks(newBooks);
-    setNewBook({ title: '', author: '', year: '', price: '' });
+    // dispatch({type:'ADD', payload:addBook})
+
+    // const newBooks = [...books, addBook];
+    // setBooks(newBooks);
+    // setDisplayBooks(newBooks);
+    // setNewBook({ title: '', author: '', year: '', price: '' });
 
     toast.success("Book added!");
   };
 
   const handleDelete = (id) => {
-    const filtered = books.filter(book => book.id !== id);
-    setBooks(filtered);
-    setDisplayBooks(filtered);
-    toast("Deleted successfully");
+    // const filtered = books.filter(book => book.id !== id);
+    // setBooks(filtered);
+    // setDisplayBooks(filtered);
+    // toast("Deleted successfully");
   };
 
   const handleSearch = () => {
-    const value = searchFieldRef.current.value;
-    setSearchText(value);
+    // const value = searchFieldRef.current.value;
+    // setSearchText(value);
   };
 
   useEffect(() => {
-    const filtered =bookState.books.filter((book) =>
-      book.title.toLowerCase().includes(searchText.toLowerCase())
-    );
-    setDisplayBooks(filtered);
+    // const filtered =bookState.books.filter((book) =>
+    //   book.title.toLowerCase().includes(searchText.toLowerCase())
+    // );
+    // setDisplayBooks(filtered);
   }, [bookState.searchText]);
 
   return (
