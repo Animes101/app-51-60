@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useRef, useState } from 'react';
+import React, { useEffect, useReducer, useRef } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
 import 'react-toastify/dist/ReactToastify.css';
@@ -10,75 +10,102 @@ const booksDami = [
   { id: 4, title: "Deep Work", author: "Cal Newport", year: 2016, price: 500 }
 ];
 
-
-  const reducer=(state, action)=>{
-
-    if(action.type === 'ADD'){
-      const allBook=[...state.books, action.payload];
+const reducer = (state, action) => {
+  switch (action.type) {
+    case 'ONCHANGE':
       return {
         ...state,
-        books:allBook,
-        displayBooks:allBook
-      }
-    }
-    return state;
+        newBook: { ...state.newBook, [action.payload.name]: action.payload.value }
+      };
 
+    case 'ADD':
+      const allBook = [...state.books, action.payload];
+      return {
+        ...state,
+        books: allBook,
+        displayBooks: allBook,
+        newBook: { title: '', author: '', year: '', price: '' }
+      };
 
+    case 'DELETE':
+      const filtered = state.books.filter(book => book.id !== action.payload);
+      return {
+        ...state,
+        books: filtered,
+        displayBooks: filtered
+      };
+
+    case 'SEARCH':
+      return {
+        ...state,
+        searchText: action.payload
+      };
+
+    case 'FILTER':
+      const searchVal = state.searchText.toLowerCase();
+      const filteredBooks = state.books.filter(book =>
+        book.title.toLowerCase().includes(searchVal)
+      );
+      return {
+        ...state,
+        displayBooks: filteredBooks
+      };
+
+    default:
+      return state;
   }
-const UseReducer = () => {
+};
 
+const UseReducer = () => {
   const searchFieldRef = useRef();
 
   const [bookState, dispatch] = useReducer(reducer, {
-    books:booksDami,
-    displayBooks:booksDami,
-    newBook:{ title: '', author: '', year: '', price: '' },
-    searchText:'',
+    books: booksDami,
+    displayBooks: booksDami,
+    newBook: { title: '', author: '', year: '', price: '' },
+    searchText: '',
   });
 
   const handleChange = (e) => {
-    setNewBook({ ...newBook, [e.target.name]: e.target.value });
+    dispatch({ type: 'ONCHANGE', payload: { name: e.target.name, value: e.target.value } });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const { title, author, year, price } = bookState.newBook;
 
-    // const addBook = {
-    //   id: uuidv4(),
-    //   title,
-    //   author,
-    //   year: parseInt(year),
-    //   price: parseInt(price)
-    // };
+    if (!title || !author || !year || !price) {
+      toast.error("Please fill all fields!");
+      return;
+    }
 
-    // dispatch({type:'ADD', payload:addBook})
+    const newBook = {
+      id: uuidv4(),
+      title,
+      author,
+      year: parseInt(year),
+      price: parseInt(price)
+    };
 
-    // const newBooks = [...books, addBook];
-    // setBooks(newBooks);
-    // setDisplayBooks(newBooks);
-    // setNewBook({ title: '', author: '', year: '', price: '' });
-
+    dispatch({ type: 'ADD', payload: newBook });
     toast.success("Book added!");
   };
 
   const handleDelete = (id) => {
-    // const filtered = books.filter(book => book.id !== id);
-    // setBooks(filtered);
-    // setDisplayBooks(filtered);
-    // toast("Deleted successfully");
+    dispatch({ type: 'DELETE', payload: id });
+    toast.info("Deleted successfully");
   };
 
-  const handleSearch = () => {
-    // const value = searchFieldRef.current.value;
-    // setSearchText(value);
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    dispatch({ type: 'SEARCH', payload: value });
   };
 
   useEffect(() => {
-    // const filtered =bookState.books.filter((book) =>
-    //   book.title.toLowerCase().includes(searchText.toLowerCase())
-    // );
-    // setDisplayBooks(filtered);
+    dispatch({ type: 'FILTER' });
   }, [bookState.searchText]);
+
+  const { title, author, year, price } = bookState.newBook;
 
   return (
     <div>
@@ -90,24 +117,23 @@ const UseReducer = () => {
         value={bookState.searchText}
       />
 
-      <h1>UseReducer</h1>
+      <h1>UseReducer Book Manager</h1>
       <ToastContainer />
 
       <form onSubmit={handleSubmit}>
-        <input onChange={handleChange} value={bookState.title} type="text" name="title" placeholder="Title" />
-        <input onChange={handleChange} value={bookState.author} type="text" name="author" placeholder="Author" />
-        <input onChange={handleChange} value={bookState.year} type="number" name="year" placeholder="Year" />
-        <input onChange={handleChange} value={bookState.price} type="number" name="price" placeholder="Price" />
+        <input onChange={handleChange} value={title} type="text" name="title" placeholder="Title" />
+        <input onChange={handleChange} value={author} type="text" name="author" placeholder="Author" />
+        <input onChange={handleChange} value={year} type="number" name="year" placeholder="Year" />
+        <input onChange={handleChange} value={price} type="number" name="price" placeholder="Price" />
         <input type="submit" value="Add New Book" />
       </form>
 
-      {/* 🔍 Show filtered books only */}
       {bookState.displayBooks.map((book) => (
-        <div key={book.id}>
-          <h1>{book.title}</h1>
-          <h2>{book.author}</h2>
-          <h4>{book.year}</h4>
-          <h2>{book.price}</h2>
+        <div key={book.id} style={{ border: '1px solid gray', margin: '10px', padding: '10px' }}>
+          <h2>{book.title}</h2>
+          <h3>{book.author}</h3>
+          <p>Year: {book.year}</p>
+          <p>Price: {book.price} ৳</p>
           <button onClick={() => handleDelete(book.id)}>Delete</button>
         </div>
       ))}
